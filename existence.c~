@@ -1,0 +1,42 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <time.h>
+#include <string.h>
+#include <fcntl.h>
+
+int main(int argc,char**argv){
+  struct stat s ;
+  char ref[1024];
+  sprintf(ref,"%s",argv[1]);
+  char buffer ;
+  int lecture=open(argv[1],O_RDONLY);
+  if (stat(argv[1], &s)== -1){
+    perror("Le fichier/répertoire n'existe pas\n");
+    exit(1);
+  }else if (S_ISREG(s.st_mode)){
+      strcpy(ref,argv[1]);
+      printf("La taille de celui ci est de : %ld ko ",&s.st_size,"\n");
+      int ecriture = open(ref,O_WRONLY | O_CREAT | O_TRUNC,S_IRWXU);
+      
+      int r;
+      r = read(lecture, &buffer, sizeof(buffer));
+      
+      write(ecriture,&buffer,sizeof(char));
+      printf("%c",buffer);
+      /*for (int i = 0 ; i < 2 ; i++){
+	r = read(fd, ref ,1);
+	ref[r] = 0 ;
+	write(1,ref,r);
+	
+	}*/
+      close(lecture);
+      close(ecriture);
+    
+  }else if (S_ISDIR(s.st_mode)){
+      strcpy(ref,argv[1]);
+      printf("Ce fichier est un répertoire\n");
+  }
+}
